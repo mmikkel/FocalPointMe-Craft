@@ -1,12 +1,10 @@
 # FocalPoint Me! plugin for Craft CMS 3.x
 
-Less clickin' to get focused
-
-![Screenshot](resources/img/plugin-logo.png)
+FocalPoint Me! adds an inline focal point editor to image previews in Asset editor modals.  
 
 ## Requirements
 
-This plugin requires Craft CMS 3.0.0-beta.23 or later.
+This plugin requires Craft CMS 3.4.0 or later.
 
 ## Installation
 
@@ -18,26 +16,6 @@ To install the plugin, follow these instructions.
 
 2. Then tell Composer to load the plugin:
 
-        composer require mmikkel/focal-point-me!
+        composer require mmikkel/focal-point-me
 
 3. In the Control Panel, go to Settings → Plugins and click the “Install” button for FocalPoint Me!.
-
-## FocalPoint Me! Overview
-
--Insert text here-
-
-## Configuring FocalPoint Me!
-
--Insert text here-
-
-## Using FocalPoint Me!
-
--Insert text here-
-
-## FocalPoint Me! Roadmap
-
-Some things to do, and ideas for potential features:
-
-* Release it
-
-Brought to you by [Mats Mikkel Rummelhoff](https://vaersaagod.no)

@@ -2,7 +2,7 @@
     "name": "mmikkel/focal-point-me",
     "description": "Less clickin' to get focused",
     "type": "craft-plugin",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "keywords": [
         "craft",
         "cms",
@@ -11,8 +11,8 @@
         "focalpoint"
     ],
     "support": {
-        "docs": "https://github.com/mmikkel/focal-point-me/blob/master/README.md",
-        "issues": "https://github.com/mmikkel/focal-point-me/issues"
+        "docs": "https://github.com/mmikkel/FocalPointMe-Craft/blob/master/README.md",
+        "issues": "https://github.com/mmikkel/FocalPointMe-Craft/issues"
     },
     "license": "MIT",
     "authors": [
@@ -34,8 +34,8 @@
         "handle": "focal-point-me",
         "developer": "Mats Mikkel Rummelhoff",
         "developerUrl": "https://vaersaagod.no",
-        "documentationUrl": "https://github.com/mmikkel/focal-point-me/blob/master/README.md",
-        "changelogUrl": "https://raw.githubusercontent.com/mmikkel/focal-point-me/master/CHANGELOG.md",
+        "documentationUrl": "https://github.com/mmikkel/FocalPointMe-Craft/blob/master/README.md",
+        "changelogUrl": "https://raw.githubusercontent.com/mmikkel/FocalPointMe-Craft/master/CHANGELOG.md",
         "class": "mmikkel\\focalpointme\\FocalpointMe"
     }
 }
