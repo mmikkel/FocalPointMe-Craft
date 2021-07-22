@@ -6,28 +6,59 @@
 
 (function () {
 
-    if (!Craft || !Craft.BaseElementEditor) {
+    if (!Craft || !Craft.AssetEditor || !Craft.AssetImageEditor) {
         return false;
     }
 
     var fnUpdateForm = Craft.AssetEditor.prototype.updateForm;
     Craft.AssetEditor.prototype.updateForm = function () {
+
         fnUpdateForm.apply(this, arguments);
-        // Init focal point
-        var $imageEditor = this.$fieldsContainer.find('> .meta > .preview-thumb-container.editable');
-        if (!$imageEditor.length) {
+
+        if (this.hasFocalPointInitialised) {
             return;
         }
-        this.removeListener($imageEditor, 'click', 'showImageEditor');
-        $imageEditor.css({ cursor: 'default' });
+
+        this.hasFocalPointInitialised = true;
+
+        var elementId = this.$element.data('id');
+        if (!elementId) {
+            return;
+        }
+
+        var $imageEditor;
+        this.isCraft37 = !!this.$sidebar;
+
+        if (this.isCraft37) {
+            var $editBtn = this.$sidebar.find('.preview-thumb-container .edit-btn');
+            if ($editBtn.length) {
+                $imageEditor = $editBtn.closest('.preview-thumb-container');
+            }
+        } else {
+            $imageEditor = this.$fieldsContainer.find('> .meta > .preview-thumb-container.editable');
+            if ($imageEditor.length) {
+                $imageEditor.css({ cursor: 'default' });
+                this.addListener($imageEditor.find('.btn'), 'click', 'showImageEditor');
+                this.removeListener($imageEditor, 'click', 'showImageEditor');
+            }
+        }
+
+        if (!$imageEditor || !$imageEditor.length) {
+            return;
+        }
+
         var $focalPointEditor = $('<div class="focalpointme-focalpoint"/>');
-        $imageEditor.find('img').wrap($focalPointEditor);
+        var $img = $imageEditor.find('img');
+        $img
+            .attr({ draggable: 'false' })
+            .css({ maxHeight: '400px', pointerEvents: 'none' })
+            .wrap($focalPointEditor);
 
-        var $editBtn = $imageEditor.find('.btn');
-        this.addListener($editBtn, 'click', 'showImageEditor');
+        if (this.isCraft37) {
+            $imageEditor.find('img').attr({ sizes: $imageEditor.width() + 'px' });
+        }
 
-        var assetId = this.$element.data('id');
-        Craft.postActionRequest('focal-point-me/default/get-asset-focal-point', { assetId: assetId }, $.proxy(function (response, textStatus) {
+        Craft.postActionRequest('focal-point-me/default/get-asset-focal-point', { assetId: elementId }, $.proxy(function (response, textStatus) {
             if (textStatus !== 'success' || !response || !response.focalPoint) {
                 console.warn('Unable to fetch current focal point');
                 return;
@@ -50,7 +81,7 @@
         this.$focalPointEditor.on('click', $.proxy(function (e) {
             this.updateFocalPointPosition(e.pageX, e.pageY);
         }, this));
-        this.$focalPointEditor.on('mouseleave', $.proxy(function (e) {
+        this.$focalPointEditor.on('mouseleave mouseout', $.proxy(function (e) {
             this.isFocalPointDragging = false;
         }, this));
         this.$focalPoint.on('mousedown', $.proxy(function (e) {
@@ -69,6 +100,11 @@
         var focalPointInputName = namespace + '[focalPoint]';
         this.$focalPointInput = $('<input type="hidden" name="' + focalPointInputName + '" value="' + [focalPoint.x, focalPoint.y].join(';') + '" />');
         this.$fieldsContainer.append(this.$focalPointInput);
+        if (this.isCraft37) {
+            this.initialData = this.slideout.$container.serialize();
+        } else {
+            this.initialData = this.hud.$body.serialize();
+        }
     }
 
     Craft.AssetEditor.prototype.updateFocalPointPosition = function (pageX, pageY) {
