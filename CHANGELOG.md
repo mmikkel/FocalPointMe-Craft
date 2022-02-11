@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 1.1.1 - 2022-02-11
+### Fixed
+- Fixes an issue where the image preview in asset slideouts was not visible if the sidebar was initially hidden
+
 ## 1.1.0 - 2021-07-22
 ### Added
 - Adds Craft 3.7 compatibility

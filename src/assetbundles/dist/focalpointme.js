@@ -54,9 +54,11 @@
             .css({ maxHeight: '400px', pointerEvents: 'none' })
             .wrap($focalPointEditor);
 
-        if (this.isCraft37) {
+        if (this.isCraft37 && this.showingSidebar) {
             $imageEditor.find('img').attr({ sizes: $imageEditor.width() + 'px' });
         }
+
+        $imageEditor.find('img').attr('draggable', 'false');
 
         Craft.postActionRequest('focal-point-me/default/get-asset-focal-point', { assetId: elementId }, $.proxy(function (response, textStatus) {
             if (textStatus !== 'success' || !response || !response.focalPoint) {
