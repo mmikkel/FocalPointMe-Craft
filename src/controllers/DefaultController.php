@@ -1,6 +1,6 @@
 <?php
 /**
- * FocalPoint Me! plugin for Craft CMS 3.x
+ * FocalPoint Me! plugin for Craft CMS 4.x
  *
  * Less clickin' to get focused
  *
@@ -10,11 +10,12 @@
 
 namespace mmikkel\focalpointme\controllers;
 
-use craft\elements\Asset;
 use mmikkel\focalpointme\FocalpointMe;
 
 use Craft;
+use craft\elements\Asset;
 use craft\web\Controller;
+
 use yii\web\NotFoundHttpException;
 use yii\web\Response;
 
@@ -30,20 +31,22 @@ class DefaultController extends Controller
      * @return Response
      * @throws NotFoundHttpException
      * @throws \yii\web\BadRequestHttpException
+     * @throws \yii\web\ForbiddenHttpException
      */
-    public function actionGetAssetFocalPoint(): Response
+    public function actionGetFocalPoint(): Response
     {
+
         $this->requireAcceptsJson();
-        $this->requireCpRequest();
-        $request = Craft::$app->getRequest();
-        $assetId = $request->getRequiredParam('assetId');
+
+        $assetId = $this->request->getRequiredBodyParam('assetId');
+
         /** @var Asset $asset */
-        $asset = Craft::$app->getAssets()->getAssetById((int)$assetId);
-        if (!$asset) {
+        if (!$asset = Asset::find()->id($assetId)->kind(Asset::KIND_IMAGE)->one()) {
             throw new NotFoundHttpException();
         }
+
         return $this->asJson([
-            'focalPoint' => $asset->focalPoint,
+            'focalPoint' => $asset->getFocalPoint(),
         ]);
     }
 }

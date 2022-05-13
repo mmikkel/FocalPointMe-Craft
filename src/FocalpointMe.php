@@ -1,6 +1,6 @@
 <?php
 /**
- * FocalPoint Me! plugin for Craft CMS 3.x
+ * FocalPoint Me! plugin for Craft CMS 4.x
  *
  * Less clickin' to get focused
  *
@@ -11,17 +11,24 @@
 namespace mmikkel\focalpointme;
 
 use Craft;
+use craft\base\Element;
 use craft\base\Plugin;
+use craft\controllers\ElementsController;
+use craft\elements\Asset;
+use craft\elements\db\AssetQuery;
+use craft\elements\db\ElementQuery;
+use craft\events\DefineHtmlEvent;
+use craft\events\PopulateElementEvent;
 use craft\events\TemplateEvent;
-use craft\services\Plugins;
-use craft\events\PluginEvent;
-use craft\events\RegisterUrlRulesEvent;
-use craft\web\UrlManager;
+use craft\helpers\Json;
+use craft\web\Controller;
 use craft\web\View;
 
-use mmikkel\focalpointme\assetbundles\FocalpointMeAsset;
+use yii\base\Action;
+use yii\base\ActionEvent;
 use yii\base\Event;
-use yii\base\InvalidConfigException;
+
+use mmikkel\focalpointme\assetbundles\FocalpointMeAsset;
 
 /**
  * Class FocalpointMe
@@ -33,34 +40,11 @@ use yii\base\InvalidConfigException;
  */
 class FocalpointMe extends Plugin
 {
-    // Static Properties
-    // =========================================================================
-
-    /**
-     * @var FocalpointMe
-     */
-    public static $plugin;
-
-    // Public Properties
-    // =========================================================================
 
     /**
      * @var string
      */
-    public $schemaVersion = '1.0.0';
-
-    /**
-     * @var bool
-     */
-    public $hasCpSettings = false;
-
-    /**
-     * @var bool
-     */
-    public $hasCpSection = false;
-
-    // Public Methods
-    // =========================================================================
+    public string $schemaVersion = '1.0.0';
 
     /**
      * @inheritdoc
@@ -68,52 +52,82 @@ class FocalpointMe extends Plugin
     public function init()
     {
         parent::init();
-        self::$plugin = $this;
 
-        Event::on(
-            Plugins::class,
-            Plugins::EVENT_AFTER_LOAD_PLUGINS,
-            function () {
-                $this->doIt();
-            }
-        );
-
-        Craft::info(
-            Craft::t(
-                'focal-point-me',
-                '{name} plugin loaded',
-                ['name' => $this->name]
-            ),
-            __METHOD__
-        );
-    }
-
-    // Protected Methods
-    // =========================================================================
-    protected function doIt()
-    {
-
-        $request = Craft::$app->getRequest();
-        $user = Craft::$app->getUser()->getIdentity();
-
-        if (!$request->getIsCpRequest() || $request->getIsSiteRequest() || $request->getIsConsoleRequest() || !$user || !$user->can('accessCp')) {
+        if (!Craft::$app->getRequest()->getIsCpRequest() || Craft::$app->getRequest()->getIsConsoleRequest() || Craft::$app->getRequest()->getIsLoginRequest()) {
             return;
         }
 
+        // Register asset bundle
         Event::on(
-            View::class,
-            View::EVENT_BEFORE_RENDER_TEMPLATE,
-            function (TemplateEvent $event) {
-                try {
-                    Craft::$app->getView()->registerAssetBundle(FocalpointMeAsset::class);
-                } catch (InvalidConfigException $e) {
-                    Craft::error(
-                        'Error registering AssetBundle - '.$e->getMessage(),
-                        __METHOD__
-                    );
+            Asset::class,
+            Element::EVENT_DEFINE_META_FIELDS_HTML,
+            function (DefineHtmlEvent $event) {
+                if ($event->static) {
+                    return;
                 }
+                $element = $event->sender;
+                if (!$element instanceof Asset || $element->kind !== Asset::KIND_IMAGE || !$element->id) {
+                    return;
+                }
+                // Inject the current focal point in an HTML commenet
+                $focalPoint = Json::encode($element->getFocalPoint() ?? ['x' => 0.5, 'y' => 0.5]);
+                $event->html .= "<!-- fp:$element->id:$focalPoint -->";
+                Craft::$app->getView()->registerAssetBundle(FocalpointMeAsset::class);
             }
         );
+
+        // Override the `focalPoint` attribute from request params when an Asset is being saved
+        Event::on(
+            Controller::class,
+            \yii\web\Controller::EVENT_BEFORE_ACTION,
+            static function (ActionEvent $event) {
+                $action = $event->action;
+                if (!$action instanceof Action) {
+                    return;
+                }
+                $controller = $action->controller;
+                if (!$controller instanceof ElementsController || $action->id !== 'save') {
+                    return;
+                }
+                if (!$focalPoint = $controller->request->getBodyParam('focalPoint')) {
+                    return;
+                }
+                Event::on(
+                    AssetQuery::class,
+                    ElementQuery::EVENT_AFTER_POPULATE_ELEMENT,
+                    static function (PopulateElementEvent $event) use ($focalPoint) {
+                        $element = $event->element;
+                        if (!$element instanceof Asset) {
+                            return;
+                        }
+                        $element->setFocalPoint($focalPoint);
+                    }
+                );
+            }
+        );
+
+        // Prevent mousedown on asset thumbnails from opening preview modals
+        if (Craft::$app->getRequest()->getIsCpRequest()) {
+            Event::on(View::class, View::EVENT_BEFORE_RENDER_PAGE_TEMPLATE, static function (TemplateEvent $e) {
+                /** @var View $view */
+                $view = $e->sender;
+                $view->registerJs(<<<JS
+                    $(() => {
+                        if (!window.Craft || !Craft.AssetSelectInput) {
+                            return;
+                        }
+                        const fn = Craft.AssetSelectInput.prototype.onAddElements;
+                        const preventPreviewModalOnMouseDown = () => $('.elementthumb.open-preview').off('mousedown touchstart');
+                        Craft.AssetSelectInput.prototype.onAddElements = function () {
+                            fn.apply(this, arguments);
+                            preventPreviewModalOnMouseDown();
+                        };
+                        preventPreviewModalOnMouseDown();
+                    });
+                JS, \yii\web\View::POS_LOAD);
+                $view->registerCss('.element[data-editable] { cursor: pointer; };');
+            });
+        }
     }
 
 }

@@ -1,10 +1,13 @@
-# FocalPoint Me! plugin for Craft CMS 3.x
+# FocalPoint Me! plugin for Craft CMS
 
-FocalPoint Me! adds an inline focal point editor to image previews in Asset editor modals.  
+FocalPoint Me! improves the Craft authoring experience by doing two things related to assets and focal points:     
+
+1. Inline focal point editing is added to the image preview (i.e. thumbnail) in asset slideouts
+2. The old behavior for thumbnails in asset fields is restored (i.e. double-click to open slideout; single-click-n-drag to re-order)
 
 ## Requirements
 
-This plugin requires Craft CMS 3.4.0 or later.
+This plugin requires Craft CMS 4.0.2 or later.
 
 ## Installation
 

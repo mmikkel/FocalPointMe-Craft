@@ -1,6 +1,6 @@
 <?php
 /**
- * FocalPoint Me! plugin for Craft CMS 3.x
+ * FocalPoint Me! plugin for Craft CMS 4.x
  *
  * Less clickin' to get focused
  *
@@ -23,9 +23,6 @@ use craft\web\assets\cp\CpAsset;
  */
 class FocalpointMeAsset extends AssetBundle
 {
-
-    // Public Methods
-    // =========================================================================
 
     /**
      * @inheritdoc

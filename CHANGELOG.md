@@ -4,6 +4,10 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## 2.0.0 - 2022-05-13
+### Added
+- Craft 4.0 compatibility
+
 ## 1.1.1 - 2022-02-11
 ### Fixed
 - Fixes an issue where the image preview in asset slideouts was not visible if the sidebar was initially hidden

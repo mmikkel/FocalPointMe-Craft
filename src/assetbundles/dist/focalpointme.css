@@ -1,9 +1,13 @@
-.focalpointme-focalpoint {
-    position: relative;
-    overflow: hidden;
+.focalpointme .buttons {
+    z-index: 2;
 }
 
-.focalpointme-focalpoint img {
+.focalpointme.hide-buttons .buttons {
+    opacity: 0;
+    pointer-events: none;
+}
+
+.focalpointme img {
     pointer-events: none;
     -moz-user-select: none;
     -webkit-user-select: none;
@@ -11,21 +15,54 @@
     user-select: none;
 }
 
-.focalpointme-focalpoint__point {
-    width: 18px;
-    height: 18px;
-    border: 2px solid rgba(255, 255, 255, 0.85);
-    background-color: rgb(0, 0, 0, 0.5);
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-9px, -9px);
-    border-radius: 100%;
-    box-sizing: border-box;
+.focalpointme-editor {
+    position:absolute;
+    top:0;
+    left:0;
+    width:100%;
+    height:100%;
+    z-index:2;
     cursor: pointer;
 }
 
-.focalpointme-focalpoint__point::before {
+.focalpointme-point {
+    width: 0;
+    height: 0;
+    position: absolute;
+    left: 50%; left: 50%;
+    cursor: grab;
+}
+
+.focalpointme-point::before {
+    content: "";
+    display: block;
+    width: 44px;
+    height: 44px;
+    position: absolute;
+    left: 50%;
+    top: 50%;
+    transform: translate(-50%, -50%);
+}
+
+.focalpointme-point:active {
+    cursor: grabbing;
+}
+
+.focalpointme-point > span {
+    display: block;
+    width: 20px;
+    height: 20px;
+    background-color: rgba(0, 0, 0, 0.5);
+    border: 2px solid rgba(255, 255, 255, 0.85);
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    border-radius: 100%;
+    box-sizing: border-box;
+}
+
+.focalpointme-point > span::before {
     content: "";
     display: block;
     width: 4px;
