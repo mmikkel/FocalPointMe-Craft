@@ -69,7 +69,7 @@ class FocalpointMe extends Plugin
                 if (!$element instanceof Asset || $element->kind !== Asset::KIND_IMAGE || !$element->id) {
                     return;
                 }
-                // Inject the current focal point in an HTML commenet
+                // Inject the current focal point in an HTML comment
                 $focalPoint = Json::encode($element->getFocalPoint() ?? ['x' => 0.5, 'y' => 0.5]);
                 $event->html .= "<!-- fp:$element->id:$focalPoint -->";
                 Craft::$app->getView()->registerAssetBundle(FocalpointMeAsset::class);
