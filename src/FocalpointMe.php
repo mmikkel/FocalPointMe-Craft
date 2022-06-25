@@ -105,29 +105,6 @@ class FocalpointMe extends Plugin
                 );
             }
         );
-
-        // Prevent clicks on asset thumbnails from opening preview modals
-        if (Craft::$app->getRequest()->getIsCpRequest()) {
-            Event::on(View::class, View::EVENT_BEFORE_RENDER_PAGE_TEMPLATE, static function (TemplateEvent $e) {
-                /** @var View $view */
-                $view = $e->sender;
-                $view->registerJs(<<<JS
-                    $(() => {
-                        if (!window.Craft || !Craft.AssetSelectInput) {
-                            return;
-                        }
-                        const fn = Craft.AssetSelectInput.prototype.onAddElements;
-                        const preventPreviewModalOnMouseDown = () => $('.elementthumb.open-preview').off('click mousedown touchstart');
-                        Craft.AssetSelectInput.prototype.onAddElements = function () {
-                            fn.apply(this, arguments);
-                            preventPreviewModalOnMouseDown();
-                        };
-                        preventPreviewModalOnMouseDown();
-                    });
-                JS, \yii\web\View::POS_LOAD);
-                $view->registerCss('.element[data-editable] { cursor: pointer; };');
-            });
-        }
     }
 
 }

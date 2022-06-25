@@ -4,6 +4,11 @@ All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog](http://keepachangelog.com/) and this project adheres to [Semantic Versioning](http://semver.org/).
 
+## Unreleased
+### Changed
+- Removed the hack to restore the old double-click behavior for asset thumbnails, as this is fixed in core in Craft 4.0.5+
+- Focal Point Me! now requires Craft 4.0.5 or later
+
 ## 2.0.1 - 2022-06-03
 ### Fixed
 - Fixes a compatability issue introduced in Craft 4.0.4
